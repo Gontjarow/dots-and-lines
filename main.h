@@ -68,6 +68,5 @@ signed	vec2_point_side(t_xy point, t_xy start, t_xy end);
 double	vec2_project_to_hypotenuse(t_xy v, t_xy hypotenuse);
 
 void	vec2_clip(t_xy p1, t_xy p2, t_xy *c1, t_xy *c2, t_xy plane_start, t_xy plane_end);
-t_xy	clip(t_xy p1, t_xy p2, t_xy plane_end, t_xy clipping_plane);
 
 #endif
