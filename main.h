@@ -37,6 +37,17 @@ typedef struct s_xy
 	};
 } t_xy;
 
+typedef struct s_line
+{
+	union
+	{
+		struct {t_xy head, tail;};
+		struct {t_xy begin, end;};
+		struct {t_xy start, stop;};
+	};
+	int color;
+} t_line;
+
 enum { primary, secondary, tertiary };
 enum { false, true };
 
@@ -48,6 +59,7 @@ void	render_frame();
 
 void	put_pixel(int x, int y, int color, unsigned *surface);
 void	draw_line(t_xy start, t_xy end, int color, unsigned *surface);
+void	draw_line2(t_line line, unsigned *surface);
 void	draw_box(t_xy center, int radius, int color, unsigned *surface);
 
 void	vec2p(const char *name, t_xy v);
@@ -68,5 +80,10 @@ signed	vec2_point_side(t_xy point, t_xy start, t_xy end);
 double	vec2_project_to_hypotenuse(t_xy v, t_xy hypotenuse);
 
 void	vec2_clip(t_xy p1, t_xy p2, t_xy *c1, t_xy *c2, t_xy plane_start, t_xy plane_end);
+void	vec2_clip_line(t_line in, t_line *out, t_line plane);
+
+t_line vec2_line(double ax, double ay, double bx, double by, int color);
+t_line vec2_line_xy(t_xy start, t_xy stop, int color);
+
 
 #endif

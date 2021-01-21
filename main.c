@@ -41,57 +41,48 @@ signed	main(int argc, char* argv[])
 void	render_frame()
 {
 	// Draw some static lines.
-	t_xy p1 = {256, 200};
-	t_xy p2 = {768, 400};
-	draw_line(p1, p2, 0xFF0000, g_surface[primary]->pixels);
+	t_line	red = vec2_line(256, 200, 768, 400, 0xff0000);
+	// draw_line2(red,   g_surface[primary]->pixels);
 
-	t_xy p3 = {MID_WIDTH, 0};
-	t_xy p4 = {MID_WIDTH, WIN_HEIGHT-1};
-	draw_line(p3, p4, 0x00FF00, g_surface[primary]->pixels);
+	t_line	green = vec2_line(MID_WIDTH, 0, MID_WIDTH, WIN_HEIGHT-1, 0x00ff00);
+	draw_line2(green, g_surface[primary]->pixels);
 
 	// Prepare to draw more lines based on mouse position.
-	int x;
-	int y;
+	signed	x, y;
 	SDL_GetMouseState(&x, &y);
-	t_xy mouse = vec2(x, y);
-	int color = 0xFFA000;
+	t_xy	mouse = vec2(x, y);
 
-	// Normalized direction (length: 1) for line p1->p2
-	t_xy v1 = vec2_norm(vec2_sub(p2, p1));
-	// Closest point on the line defined by p1 and the direction
-	t_xy m1 = vec2_point_to_line(mouse, p1, v1);
-	draw_line(m1, mouse, color, g_surface[primary]->pixels);
-	draw_box( m1, 3,     color, g_surface[primary]->pixels);
+	t_xy	red_normal = vec2_norm(vec2_sub(red.stop, red.start));
+	t_xy	m1 = vec2_point_to_line(mouse, red.start, red_normal);
+	t_line	red_to_mouse = vec2_line_xy(m1, mouse, 0xff6666);
+	draw_line2(red_to_mouse,            g_surface[primary]->pixels);
+	draw_box(m1, 3, red_to_mouse.color, g_surface[primary]->pixels);
 
-	// Same thing again for the second line. (Green)
-	t_xy v2 = vec2_norm(vec2_sub(p3, p4));
-	t_xy m2 = vec2_point_to_line(mouse, p3, v2);
-	draw_line(m2, mouse, color, g_surface[primary]->pixels);
-	draw_box( m2, 3,     color, g_surface[primary]->pixels);
+	t_xy	grn_normal = vec2_norm(vec2_sub(green.start, green.stop));
+	t_xy	m2 = vec2_point_to_line(mouse, green.start, grn_normal);
+	t_line	grn_to_mouse = vec2_line_xy(m2, mouse, 0x66ff66);
+	draw_line2(grn_to_mouse,            g_surface[primary]->pixels);
+	draw_box(m2, 3, grn_to_mouse.color, g_surface[primary]->pixels);
 
 	// Show some stats about the mouse position.
-	double d1 = vec2_point_line_distance(mouse, p1, v1);
-	double d2 = vec2_point_line_distance(mouse, p3, v2);
-	int side1 = vec2_point_side(mouse, p1, p2);
-	int side2 = vec2_point_side(mouse, p3, p4);
-	double dot1 = vec2_projected_length(vec2_norm(vec2_sub(mouse, p1)), v1);
-	double dot2 = vec2_projected_length(vec2_sub(mouse, p3), v2);
+	double	red_dist = vec2_point_line_distance(mouse, red.start, red_normal);
+	double	grn_dist = vec2_point_line_distance(mouse, green.start, grn_normal);
+	signed	red_side = vec2_point_side(mouse, red.start, red.stop);
+	signed	grn_side = vec2_point_side(mouse, green.start, green.stop);
+	double	dot1 = vec2_projected_length((vec2_sub(mouse, red.start)), red_normal);
+	double	dot2 = vec2_projected_length((vec2_sub(mouse, green.start)), grn_normal);
+	printf("mouse: %4.0f %-4.0f | R: (%2i) %-4.0f %-4.3f | G: (%2i) %-4.0f %-4.3f\n",
+		mouse.x, mouse.y, red_side, red_dist, dot1, grn_side, grn_dist, dot2);
 
-	// Clip green line:
-	// The direction of the clipping plane defines which side is "inside"
-	// Let's decide that "right" (1) is "inside"
-	// The left side will be moved to the clipping plane.
-	t_xy plane_start = vec2(MID_WIDTH, MID_HEIGHT);
-	t_xy opposite_line = vec2_add(plane_start, vec2_mul(vec2_sub(mouse, plane_start), -1));
-	draw_line(plane_start,   mouse, 0xccccff, g_surface[primary]->pixels);
-	draw_line(opposite_line, mouse, 0xccccff, g_surface[primary]->pixels);
+	// Line clipping:
+	t_xy plane_center = vec2(MID_WIDTH, MID_HEIGHT);
+	t_xy opposite_pos = vec2_add(plane_center, vec2_sub(plane_center, mouse));
+	draw_line(mouse, opposite_pos, 0x6666ff, g_surface[primary]->pixels);
 
-	t_xy c1, c2;
-	vec2_clip(p1, p2, &c1, &c2, plane_start, mouse);
-	draw_line(c1, c2, 0xFFFFFF, g_surface[primary]->pixels);
-
-	// printf("mouse: %4.0f %-4.0f | R: (%2i) %-4.0f %-4.3f | G: (%2i) %-4.0f %-4.3f\n",
-	// 	mouse.x, mouse.y, side1, d1, dot1, side2, d2, dot2);
+	t_line plane = vec2_line_xy(opposite_pos, mouse, 0);
+	t_line clipped = vec2_line(0,0, 0,0, red.color);
+	vec2_clip_line(red, &clipped, plane);
+	draw_line2(clipped, g_surface[primary]->pixels);
 }
 
 void	handle_events(int *running)

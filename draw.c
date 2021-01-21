@@ -41,3 +41,27 @@ void	draw_line(t_xy start, t_xy end, int color, unsigned *surface)
 		pos.y += ratio.y * ((start.y < end.y) ? 1 : -1);
 	}
 }
+
+void	draw_line2(t_line line, unsigned *surface)
+{
+	t_xy	length;
+	t_xy	ratio;
+	t_xy	pos;
+	signed	pixels;
+
+	length = vec2(
+		fabs(line.end.x - line.start.x),
+		fabs(line.end.y - line.start.y));
+	ratio.x = (line.start.y != line.end.y) ? (length.x / length.y) : 1;
+	ratio.y = (line.start.x != line.end.x) ? (length.y / length.x) : 1;
+	ratio.x = (ratio.x > ratio.y) ? 1 : ratio.x;
+	ratio.y = (ratio.y > ratio.x) ? 1 : ratio.y;
+	pos = line.start;
+	pixels = (length.x > length.y) ? length.x : length.y;
+	while (pixels-- > 0)
+	{
+		put_pixel(pos.x, pos.y, line.color, surface);
+		pos.x += ratio.x * ((line.start.x < line.end.x) ? 1 : -1);
+		pos.y += ratio.y * ((line.start.y < line.end.y) ? 1 : -1);
+	}
+}
