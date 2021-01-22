@@ -40,65 +40,27 @@ signed	main(int argc, char* argv[])
 
 void	render_frame()
 {
-	// Draw some static lines.
-	t_line	red = vec2_line(256, 200, 768, 400, 0xff0000);
-	// draw_line2(red,   g_surface[primary]->pixels);
-
-	t_line	green = vec2_line(MID_WIDTH, 0, MID_WIDTH, WIN_HEIGHT-1, 0x00ff00);
-	draw_line2(green, g_surface[primary]->pixels);
-
-	// Prepare to draw more lines based on mouse position.
 	signed	x, y;
 	SDL_GetMouseState(&x, &y);
-	t_xy	mouse = vec2(x, y);
-
-	t_xy	red_normal = vec2_norm(vec2_sub(red.stop, red.start));
-	t_xy	m1 = vec2_point_to_line(mouse, red.start, red_normal);
-	t_line	red_to_mouse = vec2_line_xy(m1, mouse, 0xff6666);
-	draw_line2(red_to_mouse,            g_surface[primary]->pixels);
-	draw_box(m1, 3, red_to_mouse.color, g_surface[primary]->pixels);
-
-	t_xy	grn_normal = vec2_norm(vec2_sub(green.start, green.stop));
-	t_xy	m2 = vec2_point_to_line(mouse, green.start, grn_normal);
-	t_line	grn_to_mouse = vec2_line_xy(m2, mouse, 0x66ff66);
-	draw_line2(grn_to_mouse,            g_surface[primary]->pixels);
-	draw_box(m2, 3, grn_to_mouse.color, g_surface[primary]->pixels);
-
-	// Show some stats about the mouse position.
-	double	red_dist = vec2_point_line_distance(mouse, red.start, red_normal);
-	double	grn_dist = vec2_point_line_distance(mouse, green.start, grn_normal);
-	signed	red_side = vec2_point_side(mouse, red.start, red.stop);
-	signed	grn_side = vec2_point_side(mouse, green.start, green.stop);
-	double	dot1 = vec2_projected_length((vec2_sub(mouse, red.start)), red_normal);
-	double	dot2 = vec2_projected_length((vec2_sub(mouse, green.start)), grn_normal);
-	printf("mouse: %4.0f %-4.0f | R: (%2i) %-4.0f %-4.3f | G: (%2i) %-4.0f %-4.3f\n",
-		mouse.x, mouse.y, red_side, red_dist, dot1, grn_side, grn_dist, dot2);
 
 	// Line clipping:
-	t_xy plane_center = vec2(MID_WIDTH, MID_HEIGHT);
-	t_xy opposite_pos = vec2_add(plane_center, vec2_sub(plane_center, mouse));
-	t_line mplane = vec2_line_xy(opposite_pos, mouse, 0x6666ff);
+	t_xy	mouse = vec2(x, y);
+	t_xy	plane_center = vec2(MID_WIDTH, MID_HEIGHT);
+	t_xy	opposite_pos = vec2_add(plane_center, vec2_sub(plane_center, mouse));
+	t_line	line = vec2_line_xy(opposite_pos, mouse, 0x6666ff);
 
 	// Set some points.
 	t_xy A = vec2(          200,            200);
 	t_xy B = vec2(WIN_WIDTH-200,            200);
 	t_xy C = vec2(WIN_WIDTH-200, WIN_HEIGHT-200);
 	t_xy D = vec2(          200, WIN_HEIGHT-200);
-	draw_box(A, 3, 0xffffff, g_surface[primary]->pixels);
-	draw_box(B, 3, 0xffffff, g_surface[primary]->pixels);
-	draw_box(C, 3, 0xffffff, g_surface[primary]->pixels);
-	draw_box(D, 3, 0xffffff, g_surface[primary]->pixels);
 
 	// Create a bounding box from them.
 	t_line *bounds = set_clip_bounds(A, B, C, D);
-	draw_line2(bounds[0], g_surface[primary]->pixels);
-	draw_line2(bounds[1], g_surface[primary]->pixels);
-	draw_line2(bounds[2], g_surface[primary]->pixels);
-	draw_line2(bounds[3], g_surface[primary]->pixels);
 
 	// Clip the line to those bounds.
-	t_line clipped = vec2_line(0,0, 0,0, mplane.color);
-	clip_to_bounds(mplane, &clipped, bounds);
+	t_line clipped = vec2_line(0,0, 0,0, line.color);
+	clip_to_bounds(line, &clipped, bounds);
 	draw_line2(clipped, g_surface[primary]->pixels);
 }
 
