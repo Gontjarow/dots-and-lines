@@ -77,11 +77,28 @@ void	render_frame()
 	// Line clipping:
 	t_xy plane_center = vec2(MID_WIDTH, MID_HEIGHT);
 	t_xy opposite_pos = vec2_add(plane_center, vec2_sub(plane_center, mouse));
-	draw_line(mouse, opposite_pos, 0x6666ff, g_surface[primary]->pixels);
+	t_line mplane = vec2_line_xy(opposite_pos, mouse, 0x6666ff);
 
-	t_line plane = vec2_line_xy(opposite_pos, mouse, 0);
-	t_line clipped = vec2_line(0,0, 0,0, red.color);
-	vec2_clip_line(red, &clipped, plane);
+	// Set some points.
+	t_xy A = vec2(          200,            200);
+	t_xy B = vec2(WIN_WIDTH-200,            200);
+	t_xy C = vec2(WIN_WIDTH-200, WIN_HEIGHT-200);
+	t_xy D = vec2(          200, WIN_HEIGHT-200);
+	draw_box(A, 3, 0xffffff, g_surface[primary]->pixels);
+	draw_box(B, 3, 0xffffff, g_surface[primary]->pixels);
+	draw_box(C, 3, 0xffffff, g_surface[primary]->pixels);
+	draw_box(D, 3, 0xffffff, g_surface[primary]->pixels);
+
+	// Create a bounding box from them.
+	t_line *bounds = set_clip_bounds(A, B, C, D);
+	draw_line2(bounds[0], g_surface[primary]->pixels);
+	draw_line2(bounds[1], g_surface[primary]->pixels);
+	draw_line2(bounds[2], g_surface[primary]->pixels);
+	draw_line2(bounds[3], g_surface[primary]->pixels);
+
+	// Clip the line to those bounds.
+	t_line clipped = vec2_line(0,0, 0,0, mplane.color);
+	clip_to_bounds(mplane, &clipped, bounds);
 	draw_line2(clipped, g_surface[primary]->pixels);
 }
 

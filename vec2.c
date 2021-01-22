@@ -209,3 +209,23 @@ t_line	vec2_line_xy(t_xy start, t_xy stop, int color)
 {
 	return ((t_line){start, stop, color});
 }
+
+t_line	*set_clip_bounds(t_xy top_l, t_xy top_r, t_xy bot_r, t_xy bot_l)
+{
+	static t_line bound[4] = {0};
+
+	bound[0] = vec2_line_xy(top_l, top_r, 0xffffff);
+	bound[1] = vec2_line_xy(top_r, bot_r, 0xffffff);
+	bound[2] = vec2_line_xy(bot_r, bot_l, 0xffffff);
+	bound[3] = vec2_line_xy(bot_l, top_l, 0xffffff);
+
+	return (bound);
+}
+
+void	clip_to_bounds(t_line in, t_line *out, t_line bounds[4])
+{
+	vec2_clip_line(in,   out, bounds[0]);
+	vec2_clip_line(*out, out, bounds[1]);
+	vec2_clip_line(*out, out, bounds[2]);
+	vec2_clip_line(*out, out, bounds[3]);
+}

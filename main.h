@@ -85,5 +85,7 @@ void	vec2_clip_line(t_line in, t_line *out, t_line plane);
 t_line vec2_line(double ax, double ay, double bx, double by, int color);
 t_line vec2_line_xy(t_xy start, t_xy stop, int color);
 
+t_line	*set_clip_bounds(t_xy top_l, t_xy top_r, t_xy bot_r, t_xy bot_l);
+void	clip_to_bounds(t_line in, t_line *out, t_line bounds[4]);
 
 #endif
