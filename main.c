@@ -16,7 +16,7 @@ signed	main(int argc, char* argv[])
 	g_window[primary] = new_window("Dots And Lines", WIN_WIDTH, WIN_HEIGHT);
 	g_surface[primary] = SDL_GetWindowSurface(g_window[primary]);
 
-	int running = true;
+	int running = 1;
 	while (running)
 	{
 		handle_events(&running);
@@ -50,16 +50,16 @@ void	render_frame()
 	t_line	line = vec2_line_xy(opposite_pos, mouse, 0x6666ff);
 
 	// Set some points.
-	t_xy A = vec2(          200,            200);
-	t_xy B = vec2(WIN_WIDTH-200,            200);
-	t_xy C = vec2(WIN_WIDTH-200, WIN_HEIGHT-200);
-	t_xy D = vec2(          200, WIN_HEIGHT-200);
+	t_xy A	= vec2(          200,            200);
+	t_xy B	= vec2(WIN_WIDTH-200,            200);
+	t_xy C	= vec2(WIN_WIDTH-200, WIN_HEIGHT-200);
+	t_xy D	= vec2(          200, WIN_HEIGHT-200);
 
 	// Create a bounding box from them.
-	t_line *bounds = set_clip_bounds(A, B, C, D);
+	t_line	*bounds = set_clip_bounds(A, B, C, D);
 
 	// Clip the line to those bounds.
-	t_line clipped = vec2_line(0,0, 0,0, line.color);
+	t_line	clipped = vec2_line(0,0, 0,0);
 	clip_to_bounds(line, &clipped, bounds);
 	draw_line2(clipped, g_surface[primary]->pixels);
 }
@@ -76,14 +76,14 @@ void	handle_events(int *running)
 			if (key == SDL_SCANCODE_ESCAPE)
 			{
 				printf("ESCAPE\n");
-				*running = false;
+				*running = 0;
 				return;
 			}
 		}
 		else if ((event.type == SDL_QUIT) || (event.type == SDL_WINDOWEVENT_CLOSE))
 		{
 			printf("SDL_QUIT\n");
-			*running = false;
+			*running = 0;
 			return;
 		}
 	}

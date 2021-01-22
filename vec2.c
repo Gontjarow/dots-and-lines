@@ -167,42 +167,34 @@ static t_xy	clip(t_xy p1, t_xy p2, t_xy line_pos, t_xy line_dir)
 // The left side will be moved to the clipping plane.
 void	vec2_clip_line(t_line in, t_line *out, t_line plane)
 {
-	vec2_clip(
-		in.start, in.stop,
-		&(out->start), &(out->stop),
-		plane.start, plane.stop);
-}
-
-void	vec2_clip(t_xy p1, t_xy p2, t_xy *c1, t_xy *c2, t_xy start, t_xy end)
-{
-	t_xy	clipping_line_dir;
+	t_xy	line_dir;
 	signed	p1_side;
 	signed	p2_side;
 
-	*c1 = p1;
-	*c2 = p2;
-	clipping_line_dir = vec2_norm(vec2_sub(end, start));
-	p1_side = vec2_point_side(p1, start, end);
-	p2_side = vec2_point_side(p2, start, end);
+	out->start = in.start;
+	out->stop = in.stop;
+	line_dir = vec2_norm(vec2_sub(plane.stop, plane.start));
+	p1_side = vec2_point_side(in.start, plane.start, plane.stop);
+	p2_side = vec2_point_side(in.stop, plane.start, plane.stop);
 	if (p1_side * p2_side == LINE_SIDES_CROSS)
 	{
 		if (p1_side < 0)
-			*c1 = clip(p1, p2, start, clipping_line_dir);
+			out->start = clip(in.start, in.stop, plane.start, line_dir);
 		else
-			*c2 = clip(p2, p1, start, clipping_line_dir);
+			out->stop = clip(in.stop, in.start, plane.start, line_dir);
 	}
 	else if ((p1_side == LINE_SIDE_OUT && p2_side == LINE_SIDE_OUT)
 	|| (p1_side == LINE_SIDE_NONE && p2_side == LINE_SIDE_OUT)
 	|| (p2_side == LINE_SIDE_NONE && p1_side == LINE_SIDE_OUT))
 	{
-		*c1 = vec2(0, 0);
-		*c2 = vec2(0, 0);
+		out->start = vec2(0, 0);
+		out->stop = vec2(0, 0);
 	}
 }
 
-t_line	vec2_line(double ax, double ay, double bx, double by, int color)
+t_line	vec2_line(double ax, double ay, double bx, double by)
 {
-	return ((t_line){(t_xy){ax, ay}, (t_xy){bx, by}, color});
+	return ((t_line){(t_xy){ax, ay}, (t_xy){bx, by}, 0xffffff});
 }
 
 t_line	vec2_line_xy(t_xy start, t_xy stop, int color)

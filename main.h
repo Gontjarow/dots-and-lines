@@ -17,6 +17,7 @@
 
 #define LINE_SIDES_CROSS -1
 #define LINE_SIDES_EQUAL  1
+#define LINE_SIDES_BOUND  0
 
 #define LINE_SIDE_RIGHT   1
 #define LINE_SIDE_IN      1
@@ -28,28 +29,18 @@
 
 typedef struct s_xy
 {
-	union
-	{
-		struct {double	x, y;};
-		struct {double	left, right;};
-		struct {double	top, bottom;};
-		struct {double	start, stop;};
-	};
+	double x;
+	double y;
 } t_xy;
 
 typedef struct s_line
 {
-	union
-	{
-		struct {t_xy head, tail;};
-		struct {t_xy begin, end;};
-		struct {t_xy start, stop;};
-	};
+	t_xy start;
+	t_xy stop;
 	int color;
 } t_line;
 
 enum { primary, secondary, tertiary };
-enum { false, true };
 
 SDL_Window	*new_window(const char *title, int width, int height);
 void	clear_surface(SDL_Surface *surface);
@@ -79,11 +70,10 @@ t_xy	vec2_point_to_line(t_xy point, t_xy line_pos, t_xy line_dir);
 signed	vec2_point_side(t_xy point, t_xy start, t_xy end);
 double	vec2_project_to_hypotenuse(t_xy v, t_xy hypotenuse);
 
-void	vec2_clip(t_xy p1, t_xy p2, t_xy *c1, t_xy *c2, t_xy plane_start, t_xy plane_end);
 void	vec2_clip_line(t_line in, t_line *out, t_line plane);
 
-t_line vec2_line(double ax, double ay, double bx, double by, int color);
-t_line vec2_line_xy(t_xy start, t_xy stop, int color);
+t_line	vec2_line(double ax, double ay, double bx, double by);
+t_line	vec2_line_xy(t_xy start, t_xy stop, int color);
 
 t_line	*set_clip_bounds(t_xy top_l, t_xy top_r, t_xy bot_r, t_xy bot_l);
 void	clip_to_bounds(t_line in, t_line *out, t_line bounds[4]);
